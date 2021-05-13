@@ -1,5 +1,5 @@
 {
-  "receiver": "",
+  "receivers": [],
   "server": "smtp.gmail.com",
   "port": 587,
   "sender": "",

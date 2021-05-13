@@ -41,18 +41,19 @@ def get_availabilities(urls, min_wait_time, max_wait_time):
 
 
 def send_notification(subject, body):
-    message = EmailMessage()
-    message['From'] = CONFIG['sender']
-    message['To'] = CONFIG['receiver']
-    message['Subject'] = subject
-    message.set_content(body)
+    for receiver in CONFIG['receiver']:
+        message = EmailMessage()
+        message['From'] = CONFIG['sender']
+        message['To'] = receiver
+        message['Subject'] = subject
+        message.set_content(body)
 
-    session = smtplib.SMTP(CONFIG['server'], int(CONFIG['port']))
-    session.starttls()
-    session.login(CONFIG['login'], CONFIG['password'])
-    text = message.as_string()
-    session.sendmail(message['From'], message['To'], text)
-    session.quit()
+        session = smtplib.SMTP(CONFIG['server'], int(CONFIG['port']))
+        session.starttls()
+        session.login(CONFIG['login'], CONFIG['password'])
+        text = message.as_string()
+        session.sendmail(message['From'], message['To'], text)
+        session.quit()
 
 
 def build_message(result_dict):
