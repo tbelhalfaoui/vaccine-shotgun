@@ -56,7 +56,14 @@ def send_notification(subject, body):
 
 
 def build_message(result_dict):
-    subject = f'[Shotgun] {result_dict["total"]} slot(s) available!'
+
+    dates = []
+    for avail in result_dict['availabilities']:
+        for slot in avail['slots']:
+            date = datetime.fromisoformat(slot['start_date']).strftime('%A %d %B %Y - %H:%M')
+            dates.append(date)
+
+    subject = f'[{dates[0]}] {result_dict["total"]} slot(s) at {result_dict["search_result"]["last_name"]}'
 
     body = f"""
     {result_dict['search_result']['last_name']}
@@ -65,21 +72,18 @@ def build_message(result_dict):
     {result_dict['search_result']['address']}
     {result_dict['search_result']['zipcode']} - {result_dict['search_result']['city']}
     {result_dict['search_result']['visit_motive_name']}
-    
-    """
 
-    for avail in result_dict['availabilities']:
-        for slot in avail['slots']:
-            date = datetime.fromisoformat(slot['start_date']).strftime('%d %B %Y - %H:%M')
-            body += f'{date}\n'
-
+    """ + "\n".join(dates)
     return subject, body
 
 
 def test_notification(example_response_file):
     with open(example_response_file) as f:
         result_dict = json.load(f)
-    send_notification(*build_message(result_dict))
+    title, body = build_message(result_dict)
+    send_notification(title, body)
+    print(title)
+    print(body)
     logger.info(f'Notification sent to {CONFIG["receiver"]}')
 
 
@@ -88,9 +92,9 @@ def main(min_wait_time, max_wait_time, urls_file):
 
     while True:
         for url, result_dict in get_availabilities(urls, min_wait_time, max_wait_time):
-            logger.warning(f'Yay! Found some slots! {url}')
-            logger.info(result_dict)
-            send_notification(*build_message(result_dict))
+            title, body = build_message(result_dict)
+            logger.warning(body)
+            send_notification(title, body)
 
 
 if __name__ == '__main__':
