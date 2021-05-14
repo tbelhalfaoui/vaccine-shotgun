@@ -41,7 +41,7 @@ def get_availabilities(urls, min_wait_time, max_wait_time):
 
 
 def send_notification(subject, body):
-    for receiver in CONFIG['receiver']:
+    for receiver in CONFIG['receivers']:
         message = EmailMessage()
         message['From'] = CONFIG['sender']
         message['To'] = receiver
@@ -85,7 +85,7 @@ def test_notification(example_response_file):
     send_notification(title, body)
     print(title)
     print(body)
-    logger.info(f'Notification sent to {CONFIG["receiver"]}')
+    logger.info(f'Notification sent to {CONFIG["receivers"]}')
 
 
 def main(min_wait_time, max_wait_time, urls_file):
